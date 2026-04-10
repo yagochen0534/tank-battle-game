@@ -563,30 +563,21 @@
             return false;
           }
 
-          const gridX = Math.floor(x / GRID_SIZE);
-          const gridY = Math.floor(y / GRID_SIZE);
+          // Check only the cells the tank actually occupies
+          const left = Math.floor((x - halfSize) / GRID_SIZE);
+          const right = Math.floor((x + halfSize - 1) / GRID_SIZE);
+          const top = Math.floor((y - halfSize) / GRID_SIZE);
+          const bottom = Math.floor((y + halfSize - 1) / GRID_SIZE);
 
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
-              const checkX = gridX + dx;
-              const checkY = gridY + dy;
-              if (
-                checkX >= 0 &&
-                checkX < cols &&
-                checkY >= 0 &&
-                checkY < rows
-              ) {
-                if (
-                  map[checkY] &&
-                  map[checkY][checkX] === RESOURCE_TYPES.STEEL
-                ) {
+          for (let gy = top; gy <= bottom; gy++) {
+            for (let gx = left; gx <= right; gx++) {
+              if (gx >= 0 && gx < cols && gy >= 0 && gy < rows) {
+                const cellType = map[gy][gx];
+                if (cellType === RESOURCE_TYPES.STEEL) {
                   return false;
                 }
-                if (
-                  map[checkY] &&
-                  map[checkY][checkX] === RESOURCE_TYPES.WATER
-                ) {
-                  if (this.isPlayer) return true;
+                if (cellType === RESOURCE_TYPES.WATER && !this.isPlayer) {
+                  return false;
                 }
               }
             }
@@ -602,7 +593,7 @@
             }
           }
 
-          if (this.isPlayer && this.collidesWithTank(player, x, y)) {
+          if (!this.isPlayer && player && this.collidesWithTank(player, x, y)) {
             return false;
           }
 
